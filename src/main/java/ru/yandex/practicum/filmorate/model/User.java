@@ -10,18 +10,18 @@ import java.time.LocalDate;
 
 @Data
 public class User {
-    Long id;
+    private Long id;
 
     @NotBlank(message = "email - обязательное поле для заполнения")
     @Email(message = "email - не корректный email")
-    String email;
+    private String email;
 
     @NotBlank(message = "login - обязательное поле для заполнения")
     @Pattern(regexp = "^\\S+$", message = "login - поле не должно содержать пробелы")
-    String login;
+    private String login;
 
-    String name;
+    private String name;
 
     @Past(message = "birthday - не может быть в будущем")
-    LocalDate birthday;
+    private LocalDate birthday;
 }

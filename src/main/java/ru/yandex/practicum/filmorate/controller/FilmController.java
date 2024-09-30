@@ -15,36 +15,31 @@ import java.util.Map;
 public class FilmController {
 
     private final Map<Long, Film> films = new HashMap<>();
+    private long currentId = 0L;
 
     @GetMapping
     public Collection<Film> getFilms() {
+        log.info("[Request] GET /films");
         return films.values();
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        film.setId(getNextId());
+        log.info("[Request] POST /films, body: {}", film);
+        film.setId(++currentId);
         films.put(film.getId(), film);
-        log.info("Фильм {} создан", film);
+        log.info("[Response] POST /films, body: {} - film created", film);
         return film;
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
+        log.info("[Request] PUT /films, body: {}", film);
         if (!films.containsKey(film.getId())) {
             throw new IllegalArgumentException("Фильм с id " + film.getId() + " не найден");
         }
         films.put(film.getId(), film);
-        log.info("Фильм {} обновлен", film);
+        log.info("[Response] PUT /films, body: {} - film updated", film);
         return film;
-    }
-
-    private long getNextId() {
-        long currentMaxId = films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
     }
 }

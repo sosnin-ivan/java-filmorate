@@ -15,25 +15,29 @@ import java.util.Map;
 public class UserController {
 
     private final Map<Long, User> users = new HashMap<>();
+    private long currentId = 0L;
 
     @GetMapping
     public Collection<User> getUsers() {
+        log.info("[Request] GET /users");
         return users.values();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        user.setId(getNextId());
+        log.info("[Request] POST /users, body: {}", user);
+        user.setId(++currentId);
         if (user.getName() == null) {
             user.setName(user.getLogin());
         }
         users.put(user.getId(), user);
-        log.info("Пользователь {} создан", user);
+        log.info("[Response] POST /users, body: {} - user created", user);
         return user;
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
+        log.info("[Request] PUT /users, body: {}", user);
         if (!users.containsKey(user.getId())) {
             throw new IllegalArgumentException("Пользователь с id " + user.getId() + " не найден");
         }
@@ -41,16 +45,7 @@ public class UserController {
             user.setName(user.getLogin());
         }
         users.put(user.getId(), user);
-        log.info("Пользователь {} обновлен", user);
+        log.info("[Response] PUT /users, body: {} - user updated", user);
         return user;
-    }
-
-    private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
     }
 }
