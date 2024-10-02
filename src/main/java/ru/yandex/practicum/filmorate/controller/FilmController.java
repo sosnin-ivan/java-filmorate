@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -20,7 +18,9 @@ public class FilmController {
     @GetMapping
     public Collection<Film> getFilms() {
         log.info("[Request] GET /films");
-        return films.values();
+        Collection<Film> allFilms = films.values();
+        log.info("[Response] GET /films: {}", allFilms);
+        return allFilms;
     }
 
     @PostMapping
