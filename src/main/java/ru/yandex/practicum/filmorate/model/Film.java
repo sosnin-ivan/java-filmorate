@@ -7,6 +7,9 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.IsAfterDateConstraint;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -23,4 +26,6 @@ public class Film {
 
     @Positive(message = "duration - должно быть положительным")
     private Integer duration;
+
+    private Set<Long> likes = new HashSet<>(List.of());
 }
