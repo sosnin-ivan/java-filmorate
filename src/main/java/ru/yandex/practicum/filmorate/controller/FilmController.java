@@ -4,10 +4,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.zalando.logbook.Logbook;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
 
@@ -16,33 +14,33 @@ import java.util.Collection;
 @RequestMapping("/films")
 public class FilmController {
 
-    Logbook logbook = Logbook.create();
     private final FilmService filmService;
-    private final FilmStorage filmStorage;
 
     @Autowired
-    public FilmController(FilmService filmService, FilmStorage filmStorage) {
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
-        this.filmStorage = filmStorage;
     }
 
     @GetMapping
     public Collection<Film> getFilms() {
         log.info("[Request] GET /films");
-        Collection<Film> allFilms = filmStorage.getAll();
+        Collection<Film> allFilms = filmService.getAllFilms();
         log.info("[Response] GET /films: {}", allFilms);
         return allFilms;
     }
 
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable Long id) {
-        return filmStorage.getFilm(id);
+        log.info("[Request] GET /films/{} ", id);
+        Film film = filmService.getFilm(id);
+        log.info("[Response] GET /films/{}, body: {}", id, film);
+        return film;
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         log.info("[Request] POST /films, body: {}", film);
-        Film createdFilm = filmStorage.create(film);
+        Film createdFilm = filmService.createFilm(film);
         log.info("[Response] POST /films, body: {} - film created", createdFilm);
         return createdFilm;
     }
@@ -50,7 +48,7 @@ public class FilmController {
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         log.info("[Request] PUT /films, body: {}", film);
-        Film updatedFilm = filmStorage.update(film);
+        Film updatedFilm = filmService.updateFilm(film);
         log.info("[Response] PUT /films, body: {} - film updated", updatedFilm);
         return updatedFilm;
     }
@@ -60,7 +58,7 @@ public class FilmController {
         log.info("[Request] PUT /films/{}/likes/{}", filmId, userId);
         filmService.addLike(filmId, userId);
         log.info("[Response] PUT /films/{}/likes/{} - film liked", filmId, userId);
-        return filmStorage.getFilm(filmId);
+        return filmService.getFilm(filmId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
@@ -68,7 +66,7 @@ public class FilmController {
         log.info("[Request] DELETE /films/{}/likes/{}", filmId, userId);
         filmService.removeLike(filmId, userId);
         log.info("[Response] DELETE /films/{}/likes/{} - film unliked", filmId, userId);
-        return filmStorage.getFilm(filmId);
+        return filmService.getFilm(filmId);
     }
 
     @GetMapping("/popular")

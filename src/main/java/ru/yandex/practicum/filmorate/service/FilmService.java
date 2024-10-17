@@ -13,13 +13,31 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
 
-    FilmStorage filmStorage;
-    UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+    }
+
+    public Collection<Film> getAllFilms() {
+        return filmStorage.getAllFilms();
+    }
+
+    public Film getFilm(Long filmId) {
+        checkFilmId(filmId);
+        return filmStorage.getFilm(filmId);
+    }
+
+    public Film createFilm(Film film) {
+        return filmStorage.createFilm(film);
+    }
+
+    public Film updateFilm(Film film) {
+        checkFilmId(film.getId());
+        return filmStorage.updateFilm(film);
     }
 
     public void addLike(Long filmId, Long userId) {
@@ -35,7 +53,7 @@ public class FilmService {
     }
 
     public Collection<Film> getTopFilmsByLikes(int count) {
-        return filmStorage.getAll().stream()
+        return filmStorage.getAllFilms().stream()
                 .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
                 .limit(count)
                 .collect(Collectors.toList());

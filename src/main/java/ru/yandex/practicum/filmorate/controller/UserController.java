@@ -4,10 +4,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.zalando.logbook.Logbook;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 
@@ -16,20 +14,17 @@ import java.util.Collection;
 @RequestMapping("/users")
 public class UserController {
 
-    Logbook logbook = Logbook.create();
     private final UserService userService;
-    private final UserStorage userStorage;
 
     @Autowired
-    public UserController(UserService userService, UserStorage userStorage) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userStorage = userStorage;
     }
 
     @GetMapping
     public Collection<User> getUsers() {
         log.info("[Request] GET /users");
-        Collection<User> allUsers = userStorage.getAll();
+        Collection<User> allUsers = userService.getAllUsers();
         log.info("[Response] GET /users, body: {}", allUsers);
         return allUsers;
     }
@@ -37,7 +32,7 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
         log.info("[Request] GET /user/{}", id);
-        User user = userStorage.getUser(id);
+        User user = userService.getUser(id);
         log.info("[Response] GET /user/{}, body: {} - user found", id, user);
         return user;
     }
@@ -45,7 +40,7 @@ public class UserController {
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info("[Request] POST /users, body: {}", user);
-        User createdUser = userStorage.create(user);
+        User createdUser = userService.createUser(user);
         log.info("[Response] POST /users, body: {} - user created", createdUser);
         return createdUser;
     }
@@ -53,7 +48,7 @@ public class UserController {
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         log.info("[Request] PUT /users, body: {}", user);
-        User updatedUser = userStorage.update(user);
+        User updatedUser = userService.updateUser(user);
         log.info("[Response] PUT /users, body: {} - user updated", updatedUser);
         return updatedUser;
     }
@@ -63,22 +58,30 @@ public class UserController {
         log.info("[Request] PUT /users/{}/friends/{}", id, friendId);
         User user = userService.addFriend(id, friendId);
         log.info("[Response] PUT /users/{}/friends/{}, body: {} - friend added", id, friendId, user);
-        return userStorage.getUser(id);
+        return userService.getUser(id);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public User removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        log.info("[Request] DELETE /users/{}/friends/{}", id, friendId);
         userService.removeFriend(id, friendId);
-        return userStorage.getUser(id);
+        log.info("[Response] DELETE /users/{}/friends/{}, body: {} - friend removed", id, friendId, id);
+        return userService.getUser(id);
     }
 
     @GetMapping("/{id}/friends")
     public Collection<User> getAllFriends(@PathVariable Long id) {
-        return userService.getAllFriends(id);
+        log.info("[Request] GET /users/{}/friends", id);
+        Collection<User> allFriends = userService.getAllFriends(id);
+        log.info("[Response] GET /users/{}/friends, body: {}", id, allFriends);
+        return allFriends;
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public Collection<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
-        return userService.getCommonFriends(id, otherId);
+        log.info("[Request] GET /users/{}/friends/common/{}", id, otherId);
+        Collection<User> commonFriends = userService.getCommonFriends(id, otherId);
+        log.info("[Response] GET /users/{}/friends/common/{}, body: {}", id, otherId, commonFriends);
+        return commonFriends;
     }
 }

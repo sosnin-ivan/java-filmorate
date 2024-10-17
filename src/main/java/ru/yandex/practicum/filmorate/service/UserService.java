@@ -13,11 +13,29 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    UserStorage userStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
+    }
+
+    public Collection<User> getAllUsers() {
+        return userStorage.getAllUsers();
+    }
+
+    public User getUser(Long userId) {
+        checkUserId(userId);
+        return userStorage.getUser(userId);
+    }
+
+    public User createUser(User user) {
+        return userStorage.createUser(user);
+    }
+
+    public User updateUser(User user) {
+        checkUserId(user.getId());
+        return userStorage.updateUser(user);
     }
 
     public User addFriend(Long userId, Long friendId) {
